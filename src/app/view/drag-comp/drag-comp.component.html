@@ -6,5 +6,8 @@
     </div>
 </ng-template>
 
-<mwl-calendar-week-view [viewDate]="viewDate" [events]="events" [hourSegmentTemplate]="weekViewHourSegmentTemplate" [weekStartsOn]="weekStartsOn" (eventClicked)="eventClicked($event)">
+<mwl-calendar-week-view [viewDate]="viewDate" [events]="events" [hourSegmentTemplate]="weekViewHourSegmentTemplate" [weekStartsOn]="weekStartsOn">
 </mwl-calendar-week-view>
+
+<div>Selected Slots</div>
+<pre>{{ slots | json }}</pre>

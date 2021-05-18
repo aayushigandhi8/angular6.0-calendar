@@ -10,7 +10,6 @@ import { WeekViewHourSegment } from 'calendar-utils';
 import { addDays, addMinutes, endOfWeek } from 'date-fns';
 import { fromEvent } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { colors } from 'src/assets/colors';
 
 function floorToNearest(amount: number, precision: number) {
   return Math.floor(amount / precision) * precision;
@@ -36,37 +35,37 @@ export class DragCompComponent implements OnInit {
   viewDate = new Date();
   weekStartsOn: 0 = 0;
   dragToCreateActive = false;
-  events: CalendarEvent[] = [
-    // {
-    //   label: '<i class="fas fa-fw fa-pencil-alt"></i>',
-    //   a11yLabel: 'Edit',
-    //   onClick: ({ event }: { event: CalendarEvent }): void => {
-    //     this.handleEvent('Edited', event);
-    //   },
-    // },
-    // {
-    //   label: '<i class="fas fa-fw fa-trash-alt"></i>',
-    //   a11yLabel: 'Delete',
-    //   onClick: ({ event }: { event: CalendarEvent }): void => {
-    //     this.events = this.events.filter((iEvent) => iEvent !== event);
-    //     this.handleEvent('Deleted', event);
-    //   },
-    // },
-    {
-      title: 'Click me',
-      color: colors.yellow,
-      start: new Date(),
-    },
-    {
-      title: 'Or click me',
-      color: colors.blue,
-      start: new Date(),
-    },
-  ];
-
+  events: CalendarEvent[] = [];
+  days: any[] = [];
+  slots: any[] = [];
   constructor(private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.initDays();
+  }
+
+  initDays() {
+    this.days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
+    for (let i = 0; i < this.days.length; i++) {
+      // let a = {};
+      // a[this.days[i]] = [];
+      // this.slots.push(a);
+
+      // let a = { day: this.days[i] };
+      // this.slots.push(a);
+
+      let a = { day: this.days[i], time: [] };
+      this.slots.push(a);
+    }
+  }
 
   startDragToCreate(
     segment: WeekViewHourSegment,
@@ -82,15 +81,17 @@ export class DragCompComponent implements OnInit {
       },
       actions: [
         {
-          label: '<i class="fas fa-fw fa-pencil-alt"></i>',
+          label: '<i class="fas fa-fw fa-trash-alt trash-icon"></i>',
           onClick: ({ event }: { event: CalendarEvent }): void => {
-            console.log('Edit event', event);
+            this.events = this.events.filter((iEvent) => iEvent !== event);
+            this.removeSlot(event.id);
           },
         },
       ],
     };
     this.events = [...this.events, dragToSelectEvent];
-    // console.log('event', this.events);
+    console.log('event', this.events);
+
     const segmentPosition = segmentElement.getBoundingClientRect();
     this.dragToCreateActive = true;
     const endOfView = endOfWeek(this.viewDate, {
@@ -129,11 +130,112 @@ export class DragCompComponent implements OnInit {
   private refresh() {
     this.events = [...this.events];
     this.cdr.detectChanges();
+    this.getSlots();
   }
 
-  eventClicked({ event }: { event: CalendarEvent }): void {
-    // console.log('Event clicked', event);
-    this.events = this.events.filter((iEvent) => iEvent !== event);
-    // console.log('Event deleted', event);
+  convertTime(t) {
+    return new Date(t).toTimeString();
+  }
+
+  convertDay(d) {
+    return new Date(d).toLocaleString('en-us', {
+      weekday: 'long',
+    });
+  }
+
+  getSlots() {
+    console.log(this.events);
+    //gives single properly
+    // let st,
+    //   et,
+    //   t,
+    //   time = [];
+    // for (let i = 0; i < this.events.length; i++) {
+    //   for (let j = 0; j < this.slots.length; j++) {
+    //     st = this.convertTime(this.events[i].start);
+    //     et = this.convertTime(this.events[i].end);
+
+    //     if (this.convertDay(this.events[i].start) === this.slots[j].day) {
+    //       if (et === 'Invalid Date') {
+    //         let delay = new Date(this.events[i].start);
+    //         delay.setMinutes(delay.getMinutes() + 30);
+    //         et = this.convertTime(delay);
+    //         t = {
+    //           startTime: st,
+    //           endTime: et,
+    //         };
+    //       } else {
+    //         t = {
+    //           startTime: st,
+    //           endTime: et,
+    //         };
+    //       }
+
+    //       if (this.slots[j].time) {
+    //         time.push(t);
+    //       } else {
+    //         let timea = [];
+    //         timea.push(t);
+    //         time = timea;
+    //       }
+    //       this.slots[j].time = time;
+    //       break;
+    //     }
+    //   }
+    // }
+    // console.log(this.slots);
+
+    let st, et, t;
+    for (let i = 0; i < this.events.length; i++) {
+      for (let j = 0; j < this.slots.length; j++) {
+        st = this.convertTime(this.events[i].start);
+        et = this.convertTime(this.events[i].end);
+
+        if (this.convertDay(this.events[i].start) === this.slots[j].day) {
+          if (et === 'Invalid Date') {
+            let delay = new Date(this.events[i].start);
+            delay.setMinutes(delay.getMinutes() + 30);
+            et = this.convertTime(delay);
+            t = {
+              startTime: st,
+              endTime: et,
+              id: this.events[i].id,
+            };
+          } else {
+            t = {
+              startTime: st,
+              endTime: et,
+              id: this.events[i].id,
+            };
+          }
+
+          this.slots[j].time.push(t);
+
+          let mymap = new Map();
+          let unique = this.slots[j].time.filter((el) => {
+            const val = mymap.get(el.startTime);
+            if (val) {
+              if (el.endTime > val) {
+                mymap.delete(el.startTime);
+                mymap.set(el.startTime, el.endTime);
+                return true;
+              } else {
+                return false;
+              }
+            }
+            mymap.set(el.startTime, el.endTime);
+            return true;
+          });
+          this.slots[j].time = unique;
+        }
+      }
+    }
+    console.log(this.slots);
+  }
+
+  removeSlot(id) {
+    for (let j = 0; j < this.slots.length; j++) {
+      this.slots[j].time = this.slots[j].time.filter((t) => t.id !== id);
+    }
   }
 }
