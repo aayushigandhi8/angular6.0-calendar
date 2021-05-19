@@ -59,9 +59,6 @@ export class DragCompComponent implements OnInit {
       // a[this.days[i]] = [];
       // this.slots.push(a);
 
-      // let a = { day: this.days[i] };
-      // this.slots.push(a);
-
       let a = { day: this.days[i], time: [] };
       this.slots.push(a);
     }
@@ -144,12 +141,7 @@ export class DragCompComponent implements OnInit {
   }
 
   getSlots() {
-    console.log(this.events);
-    //gives single properly
-    // let st,
-    //   et,
-    //   t,
-    //   time = [];
+    // let st, et, t;
     // for (let i = 0; i < this.events.length; i++) {
     //   for (let j = 0; j < this.slots.length; j++) {
     //     st = this.convertTime(this.events[i].start);
@@ -163,73 +155,51 @@ export class DragCompComponent implements OnInit {
     //         t = {
     //           startTime: st,
     //           endTime: et,
+    //           id: this.events[i].id,
     //         };
     //       } else {
     //         t = {
     //           startTime: st,
     //           endTime: et,
+    //           id: this.events[i].id,
     //         };
     //       }
 
-    //       if (this.slots[j].time) {
-    //         time.push(t);
-    //       } else {
-    //         let timea = [];
-    //         timea.push(t);
-    //         time = timea;
-    //       }
-    //       this.slots[j].time = time;
-    //       break;
+    //       this.slots[j].time.push(t);
+
+    //       let mymap = new Map();
+    //       let unique = this.slots[j].time.filter((el) => {
+    //         const val = mymap.get(el.startTime);
+    //         if (val) {
+    //           if (el.endTime > val) {
+    //             mymap.delete(el.startTime);
+    //             mymap.set(el.startTime, el.endTime);
+    //             return true;
+    //           } else {
+    //             return false;
+    //           }
+    //         }
+    //         mymap.set(el.startTime, el.endTime);
+    //         return true;
+    //       });
+    //       this.slots[j].time = unique;
     //     }
     //   }
     // }
     // console.log(this.slots);
 
-    let st, et, t;
-    for (let i = 0; i < this.events.length; i++) {
-      for (let j = 0; j < this.slots.length; j++) {
-        st = this.convertTime(this.events[i].start);
-        et = this.convertTime(this.events[i].end);
-
-        if (this.convertDay(this.events[i].start) === this.slots[j].day) {
-          if (et === 'Invalid Date') {
-            let delay = new Date(this.events[i].start);
-            delay.setMinutes(delay.getMinutes() + 30);
-            et = this.convertTime(delay);
-            t = {
-              startTime: st,
-              endTime: et,
-              id: this.events[i].id,
-            };
-          } else {
-            t = {
-              startTime: st,
-              endTime: et,
-              id: this.events[i].id,
-            };
-          }
-
-          this.slots[j].time.push(t);
-
-          let mymap = new Map();
-          let unique = this.slots[j].time.filter((el) => {
-            const val = mymap.get(el.startTime);
-            if (val) {
-              if (el.endTime > val) {
-                mymap.delete(el.startTime);
-                mymap.set(el.startTime, el.endTime);
-                return true;
-              } else {
-                return false;
-              }
-            }
-            mymap.set(el.startTime, el.endTime);
-            return true;
+    this.events.forEach((e) => {
+      console.log('e', e);
+      this.slots.map((day, i) => {
+        if (day.day == this.convertDay(e.start)) {
+          this.slots[i].time.push({
+            startTime: e.start,
+            endTime: e.end,
+            id: e.id,
           });
-          this.slots[j].time = unique;
         }
-      }
-    }
+      });
+    });
     console.log(this.slots);
   }
 
