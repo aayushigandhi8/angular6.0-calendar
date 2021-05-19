@@ -88,7 +88,8 @@ export class DragCompComponent implements OnInit {
     };
     this.events = [...this.events, dragToSelectEvent];
     console.log('event', this.events);
-    this.getSlots();
+    // this.getSlots();
+
     const segmentPosition = segmentElement.getBoundingClientRect();
     this.dragToCreateActive = true;
     const endOfView = endOfWeek(this.viewDate, {
@@ -127,7 +128,7 @@ export class DragCompComponent implements OnInit {
   private refresh() {
     this.events = [...this.events];
     this.cdr.detectChanges();
-    // this.getSlots();
+    this.getSlots();
   }
 
   convertTime(t) {
@@ -141,56 +142,23 @@ export class DragCompComponent implements OnInit {
   }
 
   getSlots() {
-    // let st, et, t;
-    // for (let i = 0; i < this.events.length; i++) {
-    //   for (let j = 0; j < this.slots.length; j++) {
-    //     st = this.convertTime(this.events[i].start);
-    //     et = this.convertTime(this.events[i].end);
-
-    //     if (this.convertDay(this.events[i].start) === this.slots[j].day) {
-    //       if (et === 'Invalid Date') {
-    //         let delay = new Date(this.events[i].start);
-    //         delay.setMinutes(delay.getMinutes() + 30);
-    //         et = this.convertTime(delay);
-    //         t = {
-    //           startTime: st,
-    //           endTime: et,
-    //           id: this.events[i].id,
-    //         };
-    //       } else {
-    //         t = {
-    //           startTime: st,
-    //           endTime: et,
-    //           id: this.events[i].id,
-    //         };
-    //       }
-
-    //       this.slots[j].time.push(t);
-
-    //       let mymap = new Map();
-    //       let unique = this.slots[j].time.filter((el) => {
-    //         const val = mymap.get(el.startTime);
-    //         if (val) {
-    //           if (el.endTime > val) {
-    //             mymap.delete(el.startTime);
-    //             mymap.set(el.startTime, el.endTime);
-    //             return true;
-    //           } else {
-    //             return false;
-    //           }
-    //         }
-    //         mymap.set(el.startTime, el.endTime);
-    //         return true;
+    // this.events.forEach((e) => {
+    //   console.log('e', e);
+    //   this.slots.map((day, i) => {
+    //     if (day.day == this.convertDay(e.start)) {
+    //       this.slots[i].time.push({
+    //         startTime: e.start,
+    //         endTime: e.end,
+    //         id: e.id,
     //       });
-    //       this.slots[j].time = unique;
     //     }
-    //   }
-    // }
+    //   });
+    // });
     // console.log(this.slots);
 
-    this.events.forEach((e) => {
-      console.log('e', e);
-      this.slots.map((day, i) => {
+    this.slots.map((day, i) => {
+      this.slots[i].time = [];
+      this.events.forEach((e) => {
         if (day.day == this.convertDay(e.start)) {
           this.slots[i].time.push({
             startTime: e.start,
@@ -200,7 +168,7 @@ export class DragCompComponent implements OnInit {
         }
       });
     });
-    console.log(this.slots);
+    // console.log(this.slots);
   }
 
   removeSlot(id) {
