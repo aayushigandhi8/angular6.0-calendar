@@ -88,7 +88,7 @@ export class DragCompComponent implements OnInit {
     };
     this.events = [...this.events, dragToSelectEvent];
     console.log('event', this.events);
-
+    this.getSlots();
     const segmentPosition = segmentElement.getBoundingClientRect();
     this.dragToCreateActive = true;
     const endOfView = endOfWeek(this.viewDate, {
@@ -127,7 +127,7 @@ export class DragCompComponent implements OnInit {
   private refresh() {
     this.events = [...this.events];
     this.cdr.detectChanges();
-    this.getSlots();
+    // this.getSlots();
   }
 
   convertTime(t) {
